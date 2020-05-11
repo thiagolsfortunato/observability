@@ -13,6 +13,6 @@ RUN pip install -r requirements.txt
 FROM base as release
 
 COPY --from=build /usr/local /usr/local
-COPY app.py ./
+COPY src/app.py ./
 
 CMD python app.py

@@ -13,6 +13,6 @@ RUN npm install
 FROM base as release
 
 COPY --from=build /app/node_modules /app/node_modules 
-COPY app.js ./
+COPY src/app.js ./
 
 CMD node app.js
