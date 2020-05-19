@@ -1,0 +1,61 @@
+version: "3.0"
+
+services:
+  service-web:
+    build: ./service-web
+    volumes: 
+      - ${PWD}/service-web/src/:/app/
+    environment:
+      SERVICE_HOST: service-a
+    ports:
+      - "8000:8000"
+    networks:
+      - service
+  service-a:
+    build: ./service-a
+    volumes: 
+      - ${PWD}/service-a/src/:/app/
+    environment:
+      SERVICE_HOST: service-b
+    ports:
+      - "8001"
+    networks:
+      - service
+  service-b:
+    build: ./service-b
+    volumes: 
+      - ${PWD}/service-b/src/:/app/
+    environment:
+      SERVICE_HOST: service-c
+    ports:
+      - "8002"
+    networks:
+      - service
+  service-c:
+    build: ./service-c
+    volumes: 
+      - ${PWD}/service-c/src/:/app/
+    environment:
+      SERVICE_HOST: service-db
+    ports:
+      - "8003"
+    networks:
+      - service
+  service-db:
+    build: ./service-db
+    volumes: 
+      - ${PWD}/service-db/src/:/app/
+    networks:
+      - service
+      - db
+  # db:
+  #   image: alpine
+  #   networks:
+  #     - db
+
+volumes:
+  data:
+
+networks:
+  db:
+  service:
