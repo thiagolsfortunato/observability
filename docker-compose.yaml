@@ -3,6 +3,7 @@ version: "3.0"
 services:
   service-web:
     build: ./service-web
+    container_name: service-web
     volumes: 
       - ${PWD}/service-web/src/:/app/
     environment:
@@ -13,6 +14,7 @@ services:
       - service
   service-a:
     build: ./service-a
+    container_name: service-a
     volumes: 
       - ${PWD}/service-a/src/:/app/
     environment:
@@ -23,6 +25,7 @@ services:
       - service
   service-b:
     build: ./service-b
+    container_name: service-b
     volumes: 
       - ${PWD}/service-b/src/:/app/
     environment:
@@ -33,6 +36,7 @@ services:
       - service
   service-c:
     build: ./service-c
+    container_name: service-c
     volumes: 
       - ${PWD}/service-c/src/:/app/
     environment:
@@ -43,15 +47,29 @@ services:
       - service
   service-db:
     build: ./service-db
+    container_name: service-db
+    environment: 
+      DB_HOST: db
+      DB_USER: datadog
+      DB_PASSWORd: datadog
+      DB_NAME: chat
     volumes: 
       - ${PWD}/service-db/src/:/app/
+      - ${PWD}/service-db/node_modules/:/app/node_modules
+    ports: 
+      - "3000"
     networks:
       - service
       - db
-  # db:
-  #   image: alpine
-  #   networks:
-  #     - db
+  db:
+    build: ./db
+    container_name: db     
+    volumes:
+      - data:/var/lib/mysql
+    ports:
+      - "3306"
+    networks:
+      - db
 
 volumes:
   data:

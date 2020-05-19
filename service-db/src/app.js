@@ -11,31 +11,73 @@ app.listen(port);
 
 console.log(`Aplicação teste executando em http://localhost:${port}/`);
 
-const poll = mysql.createPool({
+const conn = mysql.createPool({
   connectionLimit: 10,
   waitForConnections: true, 
   queueLimit: 0,
-  host: process.env.MYSQL_HOST || "localhost",
-  user: process.env.MYSQL_USER || "root",
-  password: process.env.MYSQL_PASSWORD || "mysql-pass",
-  database: process.env.MYSQL_DB || "chat"
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "datadog",
+  password: process.env.DB_PASSWORD || "datadog",
+  database: process.env.BD_NAME || "chat"
 });
 
-app.post('/save', (req, res) => {
-  if (req.body.message) {
-    saveMessage(req.body.message).then( id => {
-      id ? res.status(200).send("Mensagem salva com sucesso! ID: " + id) : res.status(500).send("Erro ao salvar mensagem");
-    });
+app.get('/search', (req, res) => {
+  msg = req.query.msg; 
+  if (msg) {
+    var sql = 'SELECT * FROM messages WHERE message = ' + mysql.escape(msg);
+    execSQLQuery(sql, res);
   } else {
-    res.status(204).send("Não salvamos mensagens vazias");
+    var sql = 'SELECT * FROM messages ORDER BY id';  
+    execSQLQuery(sql, res);
   }
 });
 
-async function saveMessage(msg) {
-  const result = await poll.query('INSERT INTO messages SET message = ?', [msg]);
-  if (result) {
-    console.log("Mensagem Salva! - {" + msg + ": " + result[0].insertId + "}")
-    return result[0].insertId;
-  } 
-  return null;
+app.post('/add', (req, res) => {
+  msg = req.query.msg;
+  if (msg) {
+    var select_sql = 'SELECT * FROM messages WHERE message = ' + mysql.escape(msg);
+    conn.query(select_sql, function(error, results) {
+      if (error) throw error;
+      if (results.length == 0) {
+        var sql = 'INSERT INTO messages SET message = ' + mysql.escape(msg);
+        conn.query(sql, function(error, results) {
+          if (error) throw error;
+          if (results.insertId) res.status(200).json({'id': results.insertId});
+          else res.status(400).json({'message': 'Error to execute'})
+        });
+      } else {
+        res.status(409).json({'message': 'Message already exists!'})
+      }
+    });
+  } else {
+    res.status(204).json({'message': 'Missing attribute msg'});
+  }
+});
+
+app.delete('/delete', (req, res) => {
+  msg = req.query.msg;
+  if (msg) {
+    sql = 'DELETE FROM messages WHERE message = ' + mysql.escape(msg);
+    conn.query(sql, function(error, results) {
+      if (error) throw error;
+      if (typeof results !== 'undefined' && results.affectedRows > 0) {
+        res.status(200).json({'rows affected': results.affectedRows});
+      } else {
+        res.status(400).json({'message': 'Error to delete rows'})
+      }
+    });
+  } else {
+    res.status(204).json({'message': 'Missing attribute msg'});
+  }
+});
+
+function execSQLQuery(query, res){
+  conn.query(query, function(error, results){
+    if (error) throw error;
+    if (typeof results !== 'undefined' && results.length > 0) {
+      res.status(200).json(results);
+    } else {
+      res.status(404).json({'message': 'Not Found'});
+    }
+  });
 }
