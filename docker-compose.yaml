@@ -19,8 +19,6 @@ services:
       - ${PWD}/service-a/src/:/app/
     environment:
       SERVICE_HOST: service-b
-    ports:
-      - "8001"
     networks:
       - service
   service-b:
@@ -30,8 +28,6 @@ services:
       - ${PWD}/service-b/src/:/app/
     environment:
       SERVICE_HOST: service-c
-    ports:
-      - "8002"
     networks:
       - service
   service-c:
@@ -41,8 +37,6 @@ services:
       - ${PWD}/service-c/src/:/app/
     environment:
       SERVICE_HOST: service-db
-    ports:
-      - "8003"
     networks:
       - service
   service-db:
@@ -54,10 +48,7 @@ services:
       DB_PASSWORd: datadog
       DB_NAME: chat
     volumes: 
-      - ${PWD}/service-db/src/:/app/
-      - ${PWD}/service-db/node_modules/:/app/node_modules
-    ports: 
-      - "3000"
+      - ${PWD}/service-db/:/app/
     networks:
       - service
       - db
@@ -66,8 +57,6 @@ services:
     container_name: db     
     volumes:
       - data:/var/lib/mysql
-    ports:
-      - "3306"
     networks:
       - db
 
