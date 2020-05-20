@@ -1,28 +1,15 @@
-#!/usr/bin/env node
-const mysql = require("mysql2/promise");
-const express = require("express");
-const bodyParser = require('body-parser');
-const port = process.env.PORT || 3000;
-const app = express();
+var { conn, mysql } = require('../config/db')
+var express = require('express')
+var router = express.Router();
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.listen(port);
-
-console.log(`Aplicação teste executando em http://localhost:${port}/`);
-
-const conn = mysql.createPool({
-  connectionLimit: 10,
-  waitForConnections: true, 
-  queueLimit: 0,
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "datadog",
-  password: process.env.DB_PASSWORD || "datadog",
-  database: process.env.BD_NAME || "chat"
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  res.render('index', { title: 'Datadog Demo :)' });
 });
 
-app.get('/search', (req, res) => {
-  msg = req.query.msg; 
+/* GET message listing. */
+router.get('/search', (req, res) => {
+  msg = req.query.msg;
   if (msg) {
     var sql = 'SELECT * FROM messages WHERE message = ' + mysql.escape(msg);
     execSQLQuery(sql, res);
@@ -32,7 +19,7 @@ app.get('/search', (req, res) => {
   }
 });
 
-app.post('/add', (req, res) => {
+router.post('/add', (req, res) => {
   msg = req.query.msg;
   if (msg) {
     var select_sql = 'SELECT * FROM messages WHERE message = ' + mysql.escape(msg);
@@ -54,7 +41,7 @@ app.post('/add', (req, res) => {
   }
 });
 
-app.delete('/delete', (req, res) => {
+router.delete('/delete', (req, res) => {
   msg = req.query.msg;
   if (msg) {
     sql = 'DELETE FROM messages WHERE message = ' + mysql.escape(msg);
@@ -71,7 +58,7 @@ app.delete('/delete', (req, res) => {
   }
 });
 
-function execSQLQuery(query, res){
+function execSQLQuery(query, res) {
   conn.query(query, function(error, results){
     if (error) throw error;
     if (typeof results !== 'undefined' && results.length > 0) {
@@ -81,3 +68,5 @@ function execSQLQuery(query, res){
     }
   });
 }
+
+module.exports = router;
