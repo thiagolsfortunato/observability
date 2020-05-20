@@ -1,4 +1,4 @@
-FROM python:3.6-alpine as base
+FROM python:3.6-slim-stretch as base
 
 LABEL maintainer="http://github.com/thiagolsfortunato"
 
@@ -15,4 +15,4 @@ FROM base as release
 COPY --from=build /usr/local /usr/local
 COPY src/app.py ./
 
-CMD python app.py
+CMD ddtrace-run python app.py

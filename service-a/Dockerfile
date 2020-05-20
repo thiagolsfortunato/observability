@@ -1,4 +1,4 @@
-FROM python:3.6-alpine as base
+FROM python:3.6-slim-stretch as base
 
 LABEL maintainer="http://github.com/thiagolsfortunato"
 
@@ -17,4 +17,4 @@ COPY src/app.py ./
 
 EXPOSE 8001
 
-CMD python app.py
+CMD ddtrace-run python app.py
