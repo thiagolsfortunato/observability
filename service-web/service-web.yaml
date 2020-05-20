@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
       - name: service-web
-        # image: gcr.io/{{PROJECT_ID}}/service-web:v1
-        image: gcr.io/observability-277802/service-web:v1
+        image: gcr.io/{{PROJECT_ID}}/service-web:v1
         ports:
           - containerPort: 8000
             protocol: TCP

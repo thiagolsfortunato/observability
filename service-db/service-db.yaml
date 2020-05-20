@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
       - name: service-db
-        # image: gcr.io/{{PROJECT_ID}}/service-db:v1
-        image: gcr.io/observability-277802/service-db:v1
+        image: gcr.io/{{PROJECT_ID}}/service-db:v1
         ports:
           - containerPort: 3000
             protocol: TCP
@@ -30,7 +29,7 @@ spec:
                 secretKeyRef:
                   name: service-db
                   key: DB_USER
-          - name: BD_PASSWORD
+          - name: DB_PASSWORD
             valueFrom:
                 secretKeyRef:
                   name: service-db

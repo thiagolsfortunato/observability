@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
       - name: service-a
-        # image: gcr.io/{{PROJECT_ID}}/service-a:v1
-        image: gcr.io/observability-277802/service-a:v1
+        image: gcr.io/{{PROJECT_ID}}/service-a:v1
         ports:
           - containerPort: 8001
             protocol: TCP
