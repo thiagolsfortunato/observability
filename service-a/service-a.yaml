@@ -11,10 +11,12 @@ spec:
     metadata:
       labels:
         app: service-a
+      annotations:
+        ad.datadoghq.com/service-a.logs: '[{"source":"python","service":"service-a"}]'
     spec:
       containers:
       - name: service-a
-        image: gcr.io/{{PROJECT_ID}}/service-a:v1
+        image: gcr.io/{{PROJECT_ID}}/service-a:1.0.0
         ports:
           - containerPort: 8001
             protocol: TCP
@@ -27,6 +29,16 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.hostIP
+          - name: DD_ENV
+            value: "production"
+          - name: DD_SERVICE
+            value: "service-a"
+          - name: DATADOG_TRACE_ENABLED
+            value: "true"
+          - name: DD_LOGS_INJECTION
+            value: "true"
+          - name: DD_TRACE_ANALYTICS_ENABLED
+            value: "true"
         readinessProbe:
           httpGet:
             port: 8001
