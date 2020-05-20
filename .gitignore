@@ -5,3 +5,6 @@ node_modules/
 ## python
 __pycache__/
 instance/
+
+## kubernetes
+secrets.yaml

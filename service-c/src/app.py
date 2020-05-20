@@ -29,8 +29,7 @@ def name():
   <h3>Hostname: {0}</h3>
   """.format(hostname)
   logger.info('[SERVICE-C]', extra={'hostname': hostname, 'method': request.method, 'url': request.url, 'user-agent': request.user_agent})
-  logger.info(msg, extra={'status': 200, 'content_type': 'text/html'})
-  return Response(msg, status=200, content_type="text/html")
+  return Response(hostname, status=200, content_type="text/html")
 
 @app.route('/search', methods=['GET'])
 def get():

@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: service-db
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: service-db
@@ -13,10 +14,78 @@ spec:
     spec:
       containers:
       - name: service-db
-        image: gcr.io/observability/service-db:v1
+        # image: gcr.io/{{PROJECT_ID}}/service-db:v1
+        image: gcr.io/observability-277802/service-db:v1
+        ports:
+          - containerPort: 3000
+            protocol: TCP
+        env:
+          - name: DB_HOST
+            valueFrom:
+                secretKeyRef:
+                  name: service-db
+                  key: DB_HOST
+          - name: DB_USER
+            valueFrom:
+                secretKeyRef:
+                  name: service-db
+                  key: DB_USER
+          - name: BD_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                  name: service-db
+                  key: DB_PASSWORD
+          - name: DB_NAME
+            valueFrom:
+                secretKeyRef:
+                  name: service-db
+                  key: DB_NAME
+        readinessProbe:
+          httpGet:
+            port: 3000
+            path: /
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          successThreshold: 5
+          failureThreshold: 20
+        livenessProbe:
+          httpGet:
+            port: 3000
+            path: /
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 4
         resources:
           limits:
             memory: "128Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 3000
+            cpu: "200m"
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 40
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-db
+spec:
+  type: ClusterIP
+  selector:
+    app: service-db
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
