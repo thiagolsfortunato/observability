@@ -15,4 +15,6 @@ FROM base as release
 COPY --from=build /usr/local /usr/local
 COPY src/app.py ./
 
+EXPOSE 8003
+
 CMD python app.py
