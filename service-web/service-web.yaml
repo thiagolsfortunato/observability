@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-web
+spec:
+  selector:
+    matchLabels:
+      app: service-web
+  template:
+    metadata:
+      labels:
+        app: service-web
+    spec:
+      containers:
+      - name: service-web
+        image: gcr.io/observability/service-web:v1
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8000

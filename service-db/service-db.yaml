@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-db
+spec:
+  selector:
+    matchLabels:
+      app: service-db
+  template:
+    metadata:
+      labels:
+        app: service-db
+    spec:
+      containers:
+      - name: service-db
+        image: gcr.io/observability/service-db:v1
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
