@@ -39,6 +39,10 @@ spec:
                 secretKeyRef:
                   name: service-db
                   key: DB_NAME
+          - name: DD_AGENT_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
         readinessProbe:
           httpGet:
             port: 3000

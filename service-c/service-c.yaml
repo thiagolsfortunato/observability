@@ -23,6 +23,10 @@ spec:
             value: "service-db"
           - name: SERVICE_PORT
             value: "3000"
+          - name: DD_AGENT_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
         readinessProbe:
           httpGet:
             port: 8003
