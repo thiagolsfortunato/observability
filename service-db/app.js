@@ -4,6 +4,7 @@ const datadogOptions = {
   enable: true,
   logInjection: true,
   service: 'service-db',
+  env: 'production'
 };
 
 const tracer = require('dd-trace');
