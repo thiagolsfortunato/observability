@@ -8,3 +8,4 @@ instance/
 
 ## kubernetes
 secrets.yaml
+*.sh
