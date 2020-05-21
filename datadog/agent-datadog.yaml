@@ -44,14 +44,22 @@ spec:
               secretKeyRef:
                 name: datadog-auth-token
                 key: token
+          - name: DD_EXTRA_CONFIG_PROVIDERS
+            value: 'clusterchecks'          
+          - name: DD_CRI_SOCKET_PATH
+            value: /var/run/containerd/containerd.sock
+          - name: DOCKER_HOST
+            value: unix:///host/var/run/docker.sock
           - name: KUBERNETES
             value: "true"
           - name: DD_HEALTH_PORT
             value: "5555"
+          - name: DD_COLLECT_KUBERNETES_EVENTS
+            value: 'true'
           - name: DD_LEADER_ELECTION
             value: "false"
           - name: DD_AC_EXCLUDE
-            value: "image:datadog/agent"
+            value: "image:datadog/agent image:datadog/cluster-agent"
           - name: DD_KUBERNETES_KUBELET_HOST
             valueFrom:
               fieldRef:
@@ -65,6 +73,8 @@ spec:
             value: 'true'
           - name: DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL
             value: 'true'
+          - name: DD_PROCESS_AGENT_ENABLED
+            value: 'true'
         resources:
           requests:
             memory: "256Mi"
@@ -73,10 +83,34 @@ spec:
             memory: "256Mi"
             cpu: "200m"
         volumeMounts:
-          - {name: dockersocketdir, mountPath: /host/var/run}
-          - {name: procdir, mountPath: /host/proc, readOnly: true}
-          - {name: cgroups, mountPath: /host/sys/fs/cgroup, readOnly: true}
-          - {name: s6-run, mountPath: /var/run/s6}
+          - name: dockersocketdir
+            mountPath: /host/var/run
+          - name: containerdsocket
+            mountPath: /var/run/containerd/containerd.sock
+          - name: procdir 
+            mountPath: /host/proc
+            readOnly: true
+          - name: cgroups 
+            mountPath: /host/sys/fs/cgroup
+            readOnly: true
+          - name: s6-run 
+            mountPath: /var/run/s6
+          - name: kube-scheduler
+            mountPath: /conf.d/kube_scheduler.d
+          - name: var-run
+            mountPath: /host/var/run
+            readOnly: true
+          - name: pointdir
+            mountPath: /opt/datadog-agent/run
+          - name: logpodpath
+            mountPath: /var/log/pods
+          - name: logcontainerpath
+            mountPath: /var/lib/docker/containers
+          - name: passwd
+            mountPath: /etc/passwd
+            readOnly: true
+          - name: debugfs
+            mountPath: /sys/kernel/debug
         livenessProbe:
           httpGet:
             path: /health
@@ -87,7 +121,41 @@ spec:
           successThreshold: 1
           failureThreshold: 3
       volumes:
-        - {name: dockersocketdir, hostPath: {path: /var/run}}
-        - {name: procdir, hostPath: {path: /proc}}
-        - {name: cgroups, hostPath: {path: /sys/fs/cgroup}}
-        - {name: s6-run, emptyDir: {}}
+        - name: dockersocketdir
+          hostPath: 
+            path: /var/run
+        - name: procdir
+          hostPath: 
+            path: /proc
+        - name: cgroups
+          hostPath: 
+            path: /sys/fs/cgroup
+        - name: s6-run
+          emptyDir: {}
+        - name: containerdsocket
+          hostPath:
+            path: /var/run/containerd/containerd.sock
+        - name: debugfs
+          hostPath:
+            path: /sys/kernel/debug
+        - name: pointdir
+          hostPath:
+            path: /var/lib/datadog-agent/logs
+        - name: logpodpath
+          hostPath:
+            path: /var/log/pods
+        - name: logcontainerpath
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: passwd
+          hostPath:
+            path: /etc/passwd
+        - name: var-run
+          hostPath:
+            path: /var/run
+        - name: kube-scheduler
+          configMap:
+            name: kube-scheduler
+            items:
+              - key: auto_conf.yaml
+                path: auto_conf.yaml

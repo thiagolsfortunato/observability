@@ -32,8 +32,18 @@ spec:
             value: "true"
           - name: DD_LEADER_ELECTION
             value: "true"
+          - name: DD_CLUSTER_CHECKS_ENABLED
+            value: "true"
+          - name: DD_LEADER_LEASE_DURATION
+            value: '15'
+          - name: DD_CLUSTER_NAME
+            value: "observability"
           - name: DD_EXTERNAL_METRICS_PROVIDER_ENABLED
             value: 'true'
+          - name: DD_EXTRA_CONFIG_PROVIDERS
+            value: 'kube_services'
+          - name: DD_EXTRA_LISTENERS
+            value: 'kube_services'
           # If using a secret, you can alternatively use:
           - name: DD_CLUSTER_AGENT_AUTH_TOKEN
             valueFrom:
